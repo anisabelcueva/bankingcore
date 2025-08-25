@@ -15,7 +15,9 @@ spring:
     show-sql: true # Set to true to log SQL statements
     hibernate:
       ddl-auto: none # or none, create, create-drop, validate
-
+logging:
+  level:
+    root: INFO
 
 
 

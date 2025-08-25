@@ -8,23 +8,32 @@ import java.util.List;
 
 public class CustomerResponseMapper {
 
-    public static List<CustomerResponse> buildCustomerResponse (List<Customer> listCustomerRepository) {
+    public static List<CustomerResponse> buildListCustomerResponse(List<Customer> listCustomerRepository) {
         List<CustomerResponse> listCustomerResponse = new ArrayList<>();
 
         listCustomerRepository
                 .stream()
-                .forEach(vvvv ->
+                .forEach(row ->
                         listCustomerResponse.add(
                                 CustomerResponse.builder()
-                                        .firsSecondName(vvvv.getFirsSecondName())
-                                        .lastName(vvvv.getLastName())
-                                        .dni(vvvv.getDni())
-                                        .email(vvvv.getEmail())
+                                        .firsSecondName(row.getFirsSecondName())
+                                        .lastName(row.getLastName())
+                                        .dni(row.getDni())
+                                        .email(row.getEmail())
                                         .build()
                         )
                 );
 
         return listCustomerResponse;
+    }
+
+    public static CustomerResponse buildCustomerResponse(Customer customer) {
+        return CustomerResponse.builder()
+                .firsSecondName(customer.getFirsSecondName())
+                .lastName(customer.getLastName())
+                .dni(customer.getDni())
+                .email(customer.getEmail())
+                .build();
     }
 
 }
