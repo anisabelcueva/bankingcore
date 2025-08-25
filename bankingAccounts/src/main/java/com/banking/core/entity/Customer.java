@@ -21,7 +21,7 @@ import javax.persistence.Table;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "customer")
+@Table(name = "customers")
 public class Customer {
 
     @Id
@@ -30,18 +30,18 @@ public class Customer {
     private long customerId;
 
     @Column(name = "firssecondname")
-    private String firsSecondName;
+    private String firstSecondName;
 
     @Column(name = "lastname")
     private String lastName;
 
-    @Column(name = "dni")
+    @Column(name = "dni",unique = true, nullable = false)
     private String dni;
 
     @Column(name = "email")
     private String email;
 
     @OneToMany(mappedBy="customer")
-    private List<Accounts> listAccounts;
+    private List<Account> listAccounts;
 
 }

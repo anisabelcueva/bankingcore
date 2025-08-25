@@ -1,14 +1,9 @@
 package com.banking.core.service;
 
-import com.banking.core.web.model.CustomerRequest;
-import com.banking.core.web.model.CustomerResponse;
-
-import java.util.List;
+import com.banking.core.dto.CustomerDto;
+import java.util.Optional;
 
 public interface CustomerService {
-
-    List<CustomerResponse> getListCustomers();
-
-    CustomerResponse getSaveCustomer(CustomerRequest customerRequest);
-
+    CustomerDto registerCustomer(CustomerDto customerDto);
+    Optional<CustomerDto> findByDni(String dni);
 }

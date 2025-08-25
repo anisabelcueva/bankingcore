@@ -1,62 +1,97 @@
 package com.banking.core.controller;
 
+import com.banking.core.dto.AccountDTO;
+import com.banking.core.dto.CustomerDto;
+import com.banking.core.dto.TransactionDTO;
+import com.banking.core.entity.AccountType;
+import com.banking.core.service.AccountService;
 import com.banking.core.service.CustomerService;
-import com.banking.core.web.model.CustomerRequest;
-import com.banking.core.web.model.CustomerResponse;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import com.banking.core.service.TransactionService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Optional;
 
-@AllArgsConstructor
-@Log4j2
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/bankingapp/accounts")
 public class BankingController {
 
     private final CustomerService customerService;
+    private final AccountService accountService;
+    private final TransactionService transactionService;
 
-    @GetMapping("/customer/list")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<List<CustomerResponse>> listCustomers() {
+    @Autowired
+    public BankingController(CustomerService customerService, AccountService accountService, TransactionService transactionService) {
+        this.customerService = customerService;
+        this.accountService = accountService;
+        this.transactionService = transactionService;
+    }
+
+    // Registrar Cliente: POST /bankingapp/accounts/register
+    @PostMapping("/register")
+    public ResponseEntity<?> registerCustomer(@RequestBody CustomerDto customerDto) {
         try {
-            List<CustomerResponse> customers = this.customerService.getListCustomers();
-            if (customers.isEmpty()) {
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-            }
-        return new ResponseEntity<>(customers, HttpStatus.OK);
-        } catch (Exception e) {
-            log.error(e);
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            CustomerDto newCustomer = customerService.registerCustomer(customerDto);
+            return new ResponseEntity<>(newCustomer, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PostMapping("/customer/save")
-    public ResponseEntity<CustomerResponse> saveCustomer(@RequestBody CustomerRequest customerRequest) {
+    // Abrir Cuenta: POST /bankingapp/accounts/open
+    @PostMapping("/open")
+    public ResponseEntity<?> openAccount(@RequestParam String dni, @RequestParam AccountType accountType) {
         try {
-            CustomerResponse customerResponse = this.customerService.getSaveCustomer(customerRequest);
-            return new ResponseEntity<>(customerResponse, HttpStatus.CREATED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+            AccountDTO newAccount = accountService.openAccount(dni, accountType);
+            return new ResponseEntity<>(newAccount, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
-    @PostMapping("/accounts/save")
-    public ResponseEntity<CustomerResponse> saveAccount(@RequestBody CustomerRequest customerRequest) {
-        // In Progress by Ana Isabel Cueva
-        return null;
+    // Depositar Dinero: PUT /bankingapp/accounts/deposit
+    @PutMapping("/deposit")
+    public ResponseEntity<?> deposit(@RequestBody TransactionDTO transactionDto) {
+        try {
+            AccountDTO updatedAccount = accountService.deposit(transactionDto);
+            return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 
+    // Retirar Dinero: PUT /bakingapp/accounts/withdraw
+    @PutMapping("/withdraw")
+    public ResponseEntity<?> withdraw(@RequestBody TransactionDTO transactionDto) {
+        try {
+            AccountDTO updatedAccount = accountService.withdraw(transactionDto);
+            return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
+        } catch (IllegalArgumentException | IllegalStateException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
 
+    // Consultar Saldo: GET /bakingapp/accounts/balance/{accountNumber}
+    @GetMapping("/balance/{accountNumber}")
+    public ResponseEntity<?> checkBalance(@PathVariable String accountNumber) {
+        try {
+            double balance = accountService.checkBalance(accountNumber);
+            return new ResponseEntity<>("El saldo actual es: " + balance, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
 
-
-
+    // Consultar Transacciones: GET /bakingapp/accounts/transactions/{accountNumber}
+    @GetMapping("/transactions/{accountNumber}")
+    public ResponseEntity<?> getTransactions(@PathVariable String accountNumber) {
+        try {
+            List<TransactionDTO> transactions = transactionService.getTransactionsByAccount(accountNumber);
+            return new ResponseEntity<>(transactions, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
+        }
+    }
 }
