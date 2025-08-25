@@ -1,7 +1,7 @@
 server:
   port: 8080
   servlet:
-    context-path: /bakingapp
+    context-path: /bankingapp
 spring:
   application:
   name: accounts
@@ -11,7 +11,7 @@ spring:
     password: admin
     driverClassName: com.mysql.cj.jdbc.Driver
   jpa:
-    database-platform: org.hibernate.dialect.MySQLDialect
+    database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
     hibernate:
       ddl-auto: update
