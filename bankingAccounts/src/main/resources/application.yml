@@ -1,0 +1,22 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /bakingapp
+spring:
+  application:
+  name: accounts
+  datasource:
+    url: jdbc:mysql://localhost:3306/BANKINGCOREDB
+    username: root
+    password: admin
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: true # Set to true to log SQL statements
+    hibernate:
+      ddl-auto: none # or none, create, create-drop, validate
+
+
+
+
+
