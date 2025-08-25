@@ -1,6 +1,9 @@
 package com.banking.core.controller;
 
+import com.banking.core.service.AccountService;
 import com.banking.core.service.CustomerService;
+import com.banking.core.web.model.AccountRequest;
+import com.banking.core.web.model.AccountResponse;
 import com.banking.core.web.model.CustomerRequest;
 import com.banking.core.web.model.CustomerResponse;
 import lombok.AllArgsConstructor;
@@ -15,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Objects;
 
 @AllArgsConstructor
 @Log4j2
@@ -23,6 +27,7 @@ import java.util.List;
 public class BankingController {
 
     private final CustomerService customerService;
+    private final AccountService accountService;
 
     @GetMapping("/customer/list")
     @ResponseStatus(HttpStatus.OK)
@@ -45,14 +50,20 @@ public class BankingController {
             CustomerResponse customerResponse = this.customerService.getSaveCustomer(customerRequest);
             return new ResponseEntity<>(customerResponse, HttpStatus.CREATED);
         } catch (Exception e) {
+            log.error(e);
             return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("/accounts/save")
-    public ResponseEntity<CustomerResponse> saveAccount(@RequestBody CustomerRequest customerRequest) {
-        // In Progress by Ana Isabel Cueva
-        return null;
+    public ResponseEntity<AccountResponse> saveAccount(@RequestBody AccountRequest accountRequest) {
+        try {
+            AccountResponse accountResponse = this.accountService.saveAccount(accountRequest);
+            return new ResponseEntity<>(accountResponse, HttpStatus.CREATED);
+        } catch (Exception e) {
+            log.error(e);
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 

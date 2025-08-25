@@ -11,10 +11,11 @@ import lombok.Setter;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AccountRequest {
+public class AccountResponse {
 
-    private String customerDni;
+    private String accountNumber;
     private String balance;
-    private int accountType;
+    private String accountType;
+    private String accountStatus;
 
 }
