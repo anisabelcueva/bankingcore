@@ -15,6 +15,6 @@ public class AccountRequest {
 
     private String customerDni;
     private String balance;
-    private int accountType;
+    private String accountType;
 
 }

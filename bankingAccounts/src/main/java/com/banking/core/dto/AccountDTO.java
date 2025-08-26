@@ -6,17 +6,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerDto {
+public class AccountDTO {
 
+    private long accountId;
+    private String accountNumber;
+    private double balance;
+    private int accountType;
+    private int accountStatus;
+    private List<Long> transactionIds;
     private long customerId;
-    private String firstSecondName;
-    private String lastName;
-    private String dni;
-    private String email;
 
 }

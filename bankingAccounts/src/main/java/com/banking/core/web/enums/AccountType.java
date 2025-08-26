@@ -11,16 +11,16 @@ import java.util.Objects;
 @AllArgsConstructor
 public enum AccountType {
 
-    SAVINGS_ACCOUNT(1, "Saving Account"),
-    CHECKING_ACCOUNT(2, "Checking Account"),
+    SAVINGS_ACCOUNT(1, "SAVINGS_ACCOUNT"),
+    CHECKING_ACCOUNT(2, "CHECKING_ACCOUNT"),
     NONE(0, "None");
 
     private final int id;
     private final String name;
 
-    public static AccountType getById(int id) {
+    public static AccountType getByName(String name) {
         return Arrays.stream(values())
-                .filter( accountType -> id == accountType.getId())
+                .filter( accountType -> Objects.equals(name, accountType.getName()))
                 .findAny()
                 .orElse(NONE);
     }

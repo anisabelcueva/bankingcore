@@ -1,14 +1,14 @@
 package com.banking.core.repository;
 
-import com.banking.core.entity.Customer;
+import com.banking.core.entity.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Long> {
+public interface AccountRepository extends JpaRepository<Account, Long> {
 
-    Optional<Customer> findByDni(String dni);
+    Optional<Account> findByAccountNumber(String accountNumber);
 
 }

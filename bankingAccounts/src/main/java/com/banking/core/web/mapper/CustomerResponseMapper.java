@@ -16,7 +16,7 @@ public class CustomerResponseMapper {
                 .forEach(row ->
                         listCustomerResponse.add(
                                 CustomerResponse.builder()
-                                        .firsSecondName(row.getFirsSecondName())
+                                        .firstSecondName(row.getFirstSecondName())
                                         .lastName(row.getLastName())
                                         .dni(row.getDni())
                                         .email(row.getEmail())
@@ -29,7 +29,7 @@ public class CustomerResponseMapper {
 
     public static CustomerResponse buildCustomerResponse(Customer customer) {
         return CustomerResponse.builder()
-                .firsSecondName(customer.getFirsSecondName())
+                .firstSecondName(customer.getFirstSecondName())
                 .lastName(customer.getLastName())
                 .dni(customer.getDni())
                 .email(customer.getEmail())
