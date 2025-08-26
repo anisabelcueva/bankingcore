@@ -9,6 +9,7 @@ import com.banking.core.web.model.AccountRequest;
 import com.banking.core.web.model.AccountResponse;
 import com.banking.core.web.model.CustomerRequest;
 import com.banking.core.web.model.CustomerResponse;
+import com.banking.core.web.model.TransactionRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.HttpStatus;
@@ -23,7 +24,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.Objects;
 
 @AllArgsConstructor
 @Log4j2
@@ -74,9 +74,9 @@ public class BankingController {
 
     // Depositar Dinero: PUT /bankingapp/accounts/deposit
     @PutMapping("/deposit")
-    public ResponseEntity<?> deposit(@RequestBody TransactionDTO transactionDto) {
+    public ResponseEntity<?> deposit(@RequestBody TransactionRequest transactionRequest) {
         try {
-            AccountDTO updatedAccount = accountService.deposit(transactionDto);
+            AccountDTO updatedAccount = accountService.deposit(transactionRequest);
             return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
@@ -85,9 +85,9 @@ public class BankingController {
 
     // Retirar Dinero: PUT /bakingapp/accounts/withdraw
     @PutMapping("/withdraw")
-    public ResponseEntity<?> withdraw(@RequestBody TransactionDTO transactionDto) {
+    public ResponseEntity<?> withdraw(@RequestBody TransactionRequest transactionRequest) {
         try {
-            AccountDTO updatedAccount = accountService.withdraw(transactionDto);
+            AccountDTO updatedAccount = accountService.withdraw(transactionRequest);
             return new ResponseEntity<>(updatedAccount, HttpStatus.OK);
         } catch (IllegalArgumentException | IllegalStateException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);

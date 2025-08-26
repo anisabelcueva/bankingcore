@@ -33,7 +33,7 @@ public class Transaction {
     @Column(name = "transaction_id")
     private long transactionId;
 
-    @Column(name = "creation_date")
+    @Column(name = "creation_date", insertable = false)
     private LocalDateTime creationDate;
 
     @Column(name = "transaction_type")

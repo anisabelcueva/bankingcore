@@ -15,11 +15,11 @@ import com.banking.core.web.mapper.AccountResponseMapper;
 import com.banking.core.web.model.AccountRequest;
 import com.banking.core.web.model.AccountResponse;
 import com.banking.core.web.enums.AccountStatus;
+import com.banking.core.web.model.TransactionRequest;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -67,21 +67,20 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDTO deposit(TransactionDTO transactionDto) {
-        Account account = accountRepository.findByAccountNumber(String.valueOf(transactionDto.getAccountId()))
+    public AccountDTO deposit(TransactionRequest transactionRequest) {
+        Account account = accountRepository.findById(transactionRequest.getAccountId())
                 .orElseThrow(() -> new IllegalArgumentException("Cuenta no encontrada."));
 
-        if (transactionDto.getAmount() <= 0) {
+        if (transactionRequest.getAmount() <= 0) {
             throw new IllegalArgumentException("El monto del depósito debe ser positivo.");
         }
 
-        double newBalance = account.getBalance() + transactionDto.getAmount();
+        double newBalance = account.getBalance() + transactionRequest.getAmount();
         account.setBalance(newBalance);
 
         Transaction transaction = Transaction.builder()
-                .creationDate(LocalDateTime.now())
                 .transactionType(TransactionType.DEPOSIT)
-                .amount(transactionDto.getAmount())
+                .amount(transactionRequest.getAmount())
                 .account(account)
                 .build();
         transactionRepository.save(transaction);
@@ -92,15 +91,15 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountDTO withdraw(TransactionDTO transactionDto) {
-        Account account = accountRepository.findByAccountNumber(String.valueOf(transactionDto.getAccountId()))
+    public AccountDTO withdraw(TransactionRequest transactionRequest) {
+        Account account = accountRepository.findById(transactionRequest.getAccountId())
                 .orElseThrow(() -> new IllegalArgumentException("Cuenta no encontrada."));
 
-        if (transactionDto.getAmount() <= 0) {
+        if (transactionRequest.getAmount() <= 0) {
             throw new IllegalArgumentException("El monto a retirar debe ser positivo.");
         }
 
-        double newBalance = account.getBalance() - transactionDto.getAmount();
+        double newBalance = account.getBalance() - transactionRequest.getAmount();
 
         if (account.getAccountType() == AccountType.SAVINGS_ACCOUNT) {
             if (newBalance < 0) {
@@ -115,9 +114,8 @@ public class AccountServiceImpl implements AccountService {
         account.setBalance(newBalance);
 
         Transaction transaction = Transaction.builder()
-                .creationDate(LocalDateTime.now())
                 .transactionType(TransactionType.WITHDRAW)
-                .amount(transactionDto.getAmount())
+                .amount(transactionRequest.getAmount())
                 .account(account)
                 .build();
         transactionRepository.save(transaction);
