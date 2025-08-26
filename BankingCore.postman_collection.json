@@ -1,0 +1,203 @@
+{
+	"info": {
+		"_postman_id": "fdc18c2a-42e8-4490-8273-1a4910791ae9",
+		"name": "BankingCore",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47873815"
+	},
+	"item": [
+		{
+			"name": "Customer [List]",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/bankingapp/api/customer/list",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"bankingapp",
+						"api",
+						"customer",
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Customer [ Save ]",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"firstSecondName\": \"Camila\",\r\n    \"lastName\": \"Cespedes\",\r\n    \"dni\": \"38457814\",\r\n    \"email\": \"camilacespedes@gmail.com\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/bankingapp/api/customer/save",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"bankingapp",
+						"api",
+						"customer",
+						"save"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Account [ Save ]",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"customerDni\": \"10202238\",\r\n    \"balance\": \"0.0\",\r\n    \"accountType\": \"SAVINGS_ACCOUNT\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/bankingapp/api/accounts/save",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"bankingapp",
+						"api",
+						"accounts",
+						"save"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Deposit",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"amount\": 80.42,\r\n    \"accountId\": 1 \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/bankingapp/api/deposit",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"bankingapp",
+						"api",
+						"deposit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Withdraw",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"amount\": 15.33,\r\n    \"accountId\": 1 \r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseURL}}/bankingapp/api/withdraw",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"bankingapp",
+						"api",
+						"withdraw"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CheckBalance",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/bankingapp/api/balance/5760223017905676385",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"bankingapp",
+						"api",
+						"balance",
+						"5760223017905676385"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transactions [ List ]",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}/bankingapp/api/transactions/5760223017905676385",
+					"host": [
+						"{{baseURL}}"
+					],
+					"path": [
+						"bankingapp",
+						"api",
+						"transactions",
+						"5760223017905676385"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "baseURL",
+			"value": "",
+			"type": "default"
+		}
+	]
+}
