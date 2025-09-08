@@ -1,0 +1,22 @@
+server:
+  port: 8085
+  servlet:
+    context-path: /transactionms
+
+spring:
+  application:
+    name: transactionms
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017/
+      database: transactionsdb
+      auto-index-creation: true
+
+logging:
+  level:
+    org:
+      springframework:
+        data:
+          mongodb:
+            core:
+              MongoTemplate: DEBUG
