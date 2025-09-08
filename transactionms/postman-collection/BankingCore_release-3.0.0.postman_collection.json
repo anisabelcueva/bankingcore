@@ -1,0 +1,61 @@
+{
+	"info": {
+		"_postman_id": "e2e6958c-b80e-4d35-afb0-cf17044fc3fb",
+		"name": "BankingCore_release/3.0.0",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47873815"
+	},
+	"item": [
+		{
+			"name": "/transactions/deposit",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"amount\": 278.50,\r\n  \"accountNumberOrigin\": \"000000000000003333\",\r\n  \"accountNumberDestination\": \"000000000000004444\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8085/transactionms/transactions/deposit",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"transactionms",
+						"transactions",
+						"deposit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/transactions/history",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8085/transactionms/transactions/history",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8085",
+					"path": [
+						"transactionms",
+						"transactions",
+						"history"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
