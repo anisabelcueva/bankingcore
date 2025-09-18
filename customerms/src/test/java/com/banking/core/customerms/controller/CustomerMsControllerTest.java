@@ -44,7 +44,7 @@ class CustomerMsControllerTest {
         ResponseEntity<CustomerResponse> response = this.customerMsController.saveCustomer(MockUtils.buildCustomerRequest());
 
         Assertions.assertNotNull(response.getBody());
-        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+        Assertions.assertEquals(HttpStatus.CREATED, response.getStatusCode());
     }
 
     @Test
