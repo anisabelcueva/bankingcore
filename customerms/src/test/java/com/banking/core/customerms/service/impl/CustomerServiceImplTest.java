@@ -2,6 +2,7 @@ package com.banking.core.customerms.service.impl;
 
 import com.banking.core.customerms.dto.CustomerDto;
 import com.banking.core.customerms.entity.Customer;
+import com.banking.core.customerms.mocks.MockUtils;
 import com.banking.core.customerms.repository.CustomerRepository;
 import com.banking.core.customerms.web.model.CustomerRequest;
 import com.banking.core.customerms.web.model.CustomerResponse;
@@ -17,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,23 +53,7 @@ class CustomerServiceImplTest {
 
     @Test
     void getListCustomers() {
-        Customer firstCustomer = Customer.builder()
-                .firstSecondName("Ana")
-                .lastName("Cueva")
-                .dni("23222211")
-                .email("anita@gmail.com")
-                .build();
-
-        Customer secondCustomer = Customer.builder()
-                .firstSecondName("Isabel")
-                .lastName("Castillo")
-                .dni("44454511")
-                .email("isabel@gmail.com")
-                .build();
-
-        List<Customer> listCustomers = Arrays.asList(firstCustomer, secondCustomer);
-
-        when(this.customerRepository.findAll()).thenReturn(listCustomers);
+        when(this.customerRepository.findAll()).thenReturn(MockUtils.buildListCustomer());
 
         List<CustomerResponse> response =  this.customerServiceImpl.getListCustomers();
 
