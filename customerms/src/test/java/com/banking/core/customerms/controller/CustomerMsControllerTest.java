@@ -49,10 +49,26 @@ class CustomerMsControllerTest {
 
     @Test
     void getCustomer() {
+        Mockito.when(this.customerServiceImpl.getCustomer(any(long.class)))
+                .thenReturn(MockUtils.buildCustomerResponse());
+
+        ResponseEntity<CustomerResponse> response = this.customerMsController.getCustomer(111);
+
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    void getCustomer_NoContent() {
+        ResponseEntity<CustomerResponse> response = this.customerMsController.getCustomer(111);
+
+        Assertions.assertNull(response.getBody());
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
     }
 
     @Test
     void updateCustomer() {
+
     }
 
     @Test
