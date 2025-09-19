@@ -65,4 +65,25 @@ public class MockUtils {
         return customerRequest;
     }
 
+
+    public static CustomerResponse buildUpdateCustomerResponse() {
+        CustomerResponse customerResponse = CustomerResponse.builder()
+                .firstSecondName("Mariana")
+                .lastName("Matcha")
+                .dni("44556677")
+                .email("marianamatcha@gmail.com")
+                .build();
+        return customerResponse;
+    }
+
+    public static CustomerRequest buildUpdateCustomerRequest() {
+        CustomerRequest customerRequest = CustomerRequest.builder()
+                .firstSecondName("Mariana")
+                .lastName("Matcha")
+                .dni("44556677")
+                .email("marianamatcha@gmail.com")
+                .build();
+        return customerRequest;
+    }
+
 }
