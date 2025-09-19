@@ -37,6 +37,17 @@ class CustomerMsControllerTest {
     }
 
     @Test
+    void getCustomersNotContent() {
+        Mockito.when(this.customerServiceImpl.getListCustomers())
+                .thenReturn(List.of());
+
+        ResponseEntity<List<CustomerResponse>> response = this.customerMsController.getCustomers();
+
+        Assertions.assertNull(response.getBody());
+        Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
+    }
+
+    @Test
     void saveCustomer() {
         Mockito.when(this.customerServiceImpl.saveCustomer(any(CustomerRequest.class)))
                 .thenReturn(MockUtils.buildCustomerResponse());
@@ -52,15 +63,15 @@ class CustomerMsControllerTest {
         Mockito.when(this.customerServiceImpl.getCustomer(any(long.class)))
                 .thenReturn(MockUtils.buildCustomerResponse());
 
-        ResponseEntity<CustomerResponse> response = this.customerMsController.getCustomer(111);
+        ResponseEntity<CustomerResponse> response = this.customerMsController.getCustomer(0L);
 
         Assertions.assertNotNull(response.getBody());
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 
     @Test
-    void getCustomer_NoContent() {
-        ResponseEntity<CustomerResponse> response = this.customerMsController.getCustomer(111);
+    void getCustomerNoContent() {
+        ResponseEntity<CustomerResponse> response = this.customerMsController.getCustomer(0L);
 
         Assertions.assertNull(response.getBody());
         Assertions.assertEquals(HttpStatus.NO_CONTENT, response.getStatusCode());
@@ -68,10 +79,48 @@ class CustomerMsControllerTest {
 
     @Test
     void updateCustomer() {
+        CustomerResponse customerResponse = MockUtils.buildUpdateCustomerResponse();
 
+        Mockito.when(this.customerServiceImpl.updateCustomer(any(CustomerRequest.class), any(long.class)))
+                .thenReturn(customerResponse);
+
+        ResponseEntity<CustomerResponse> response = this.customerMsController.updateCustomer(0L, new CustomerRequest());
+
+        Assertions.assertNotNull(response.getBody());
+        Assertions.assertEquals(response.getBody().getFirstSecondName(), customerResponse.getFirstSecondName());
+        Assertions.assertEquals(response.getBody().getLastName(), customerResponse.getLastName());
+        Assertions.assertEquals(response.getBody().getDni(), customerResponse.getDni());
+        Assertions.assertEquals(response.getBody().getEmail(), customerResponse.getEmail());
+    }
+
+    @Test
+    void updateCustomerNotFound() {
+        CustomerResponse customerResponse = MockUtils.buildUpdateCustomerResponse();
+
+        Mockito.when(this.customerServiceImpl.updateCustomer(any(CustomerRequest.class), any(long.class)))
+                .thenReturn(null);
+
+        ResponseEntity<CustomerResponse> response = this.customerMsController.updateCustomer(0L, new CustomerRequest());
+
+        Assertions.assertNull(response.getBody());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 
     @Test
     void deleteCustomer() {
+        Mockito.when(this.customerServiceImpl.deleteCustomer(any(long.class)))
+                .thenReturn(MockUtils.buildCustomerResponse());
+
+        ResponseEntity<CustomerResponse> response = this.customerMsController.deleteCustomer(0L);
+
+        Assertions.assertNotNull(response.getBody());
+    }
+
+    @Test
+    void deleteCustomerNotFound() {
+        ResponseEntity<CustomerResponse> response = this.customerMsController.deleteCustomer(0L);
+
+        Assertions.assertNull(response.getBody());
+        Assertions.assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }
 }
