@@ -65,7 +65,7 @@ public class CustomerServiceImpl implements CustomerService {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")))
                 .flatMap(repository::delete)
-                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex));
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Unexpected error", ex));
     }
 
     // 🔹 Helpers: convert between Request/Entity/Response

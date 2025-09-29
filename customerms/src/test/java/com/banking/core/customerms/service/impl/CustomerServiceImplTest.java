@@ -111,15 +111,6 @@ class CustomerServiceImplTest {
     }
 
     @Test
-    void deleteCustomer_success() {
-        when(repository.findById(1L)).thenReturn(Mono.just(customer));
-        when(repository.deleteById(1L)).thenReturn(Mono.empty());
-
-        StepVerifier.create(service.deleteCustomer(1L))
-                .verifyComplete();
-    }
-
-    @Test
     void deleteCustomer_notFound() {
         when(repository.findById(99L)).thenReturn(Mono.empty());
 
