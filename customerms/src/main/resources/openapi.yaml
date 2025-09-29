@@ -1,0 +1,230 @@
+openapi: 3.0.3
+info:
+  title: Customers MS API (Reactive)
+  version: "1.0.0"
+  description: |
+    API for CRUD management of customers (WebFlux compatible).
+servers:
+  - url: /
+    description: Local server (context root)
+
+tags:
+  - name: customers
+    description: Customer operations
+
+paths:
+  /customers:
+    get:
+      tags: [customers]
+      summary: List all customers
+      description: |
+        Returns all customers.
+        Recommended implementation: Flux<CustomerResponse>.
+      operationId: getCustomers
+      responses:
+        '200':
+          description: |
+            List of customers (JSON array).
+            Note: For reactive implementations you can use Flux<CustomerResponse>.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CustomerResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    post:
+      tags: [customers]
+      summary: Create a new customer
+      description: |
+        Creates a new customer.
+      operationId: createCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      responses:
+        '201':
+          description: Customer created
+          headers:
+            Location:
+              description: URL of the created resource (/customers/{id})
+              schema:
+                type: string
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Customer created successfully!"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /customers/{id}:
+    parameters:
+      - $ref: '#/components/parameters/CustomerId'
+    get:
+      tags: [customers]
+      summary: Get customer by ID
+      description: |
+        Returns a single customer by its id.
+      operationId: getCustomerById
+      responses:
+        '200':
+          description: Customer found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+    put:
+      tags: [customers]
+      summary: Update customer data
+      description: |
+        Updates the customer identified by id.
+      operationId: updateCustomer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomerRequest'
+      responses:
+        '200':
+          description: Customer updated
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Customer updated successfully!"
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+
+    delete:
+      tags: [customers]
+      summary: Delete customer
+      description: |
+        Deletes the customer identified by id.
+      operationId: deleteCustomer
+      responses:
+        '204':
+          description: Customer deleted (no content)
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+components:
+  parameters:
+    CustomerId:
+      name: id
+      in: path
+      required: true
+      description: Unique identifier of the customer
+      schema:
+        type: integer
+        format: int64
+
+  responses:
+    BadRequest:
+      description: Invalid request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Conflict (e.g. duplicate DNI)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    CustomerRequest:
+      type: object
+      required:
+        - firstName
+        - lastName
+        - dni
+      properties:
+        firstName:
+          type: string
+          minLength: 3
+          example: John
+          description: First name (required)
+        lastName:
+          type: string
+          minLength: 3
+          example: Doe
+          description: Last name (required)
+        dni:
+          type: string
+          pattern: '^[0-9]{8}$'
+          example: "12345678"
+          description: Identity document (8 digits, unique)
+        email:
+          type: string
+          format: email
+          pattern: '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'
+          example: john@example.com
+          description: Email (optional, must be a valid address)
+
+    CustomerResponse:
+      type: object
+      required:
+        - id
+        - firstName
+        - lastName
+        - dni
+      properties:
+        id:
+          type: integer
+          format: int64
+          example: 1001
+        firstName:
+          type: string
+          example: John
+        lastName:
+          type: string
+          example: Doe
+        dni:
+          type: string
+          example: "74767840"
+        email:
+          type: string
+          example: john@example.com
+
+    ErrorResponse:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        status:
+          type: integer
+        error:
+          type: string
+        message:
+          type: string
+        path:
+          type: string

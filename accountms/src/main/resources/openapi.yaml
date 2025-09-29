@@ -1,0 +1,183 @@
+openapi: 3.0.3
+info:
+  title: Reactive Bank Accounts API
+  version: 1.0.0
+  description: API for reactive management of bank accounts using Spring WebFlux.
+
+servers:
+  - url: /accounts
+    description: Bank accounts service base path
+
+paths:
+  /:
+    post:
+      summary: Create a new bank account
+      operationId: createAccount
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountsRequest'
+      responses:
+        '200':
+          description: Account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountsResponse'
+
+    get:
+      summary: Retrieve all bank accounts
+      operationId: getAllAccounts
+      responses:
+        '200':
+          description: List of all accounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AccountsResponse'
+
+  /{id}:
+    get:
+      summary: Retrieve account details by ID
+      operationId: getAccountById
+      parameters:
+        - name: id
+          in: path
+          description: Unique account identifier
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Account details found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountsResponse'
+        '404':
+          description: Account not found
+
+    delete:
+      summary: Delete an account by ID
+      operationId: deleteAccount
+      parameters:
+        - name: id
+          in: path
+          description: Unique account identifier to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Account deleted successfully
+
+  /{id}/deposit:
+    put:
+      summary: Deposit funds into an account
+      operationId: depositAccount
+      parameters:
+        - name: id
+          in: path
+          description: Unique account identifier
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '200':
+          description: Deposit successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountsResponse'
+        '400':
+          description: Deposit error (e.g., invalid amount)
+
+  /{id}/withdraw:
+    put:
+      summary: Withdraw funds from an account
+      operationId: withdrawAccount
+      parameters:
+        - name: id
+          in: path
+          description: Unique account identifier
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+      responses:
+        '200':
+          description: Withdrawal successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountsResponse'
+        '400':
+          description: Withdrawal error (e.g., insufficient funds)
+
+components:
+  schemas:
+    AccountsRequest:
+      type: object
+      required:
+        - accountType
+        - clientId
+      properties:
+        accountType:
+          type: string
+          description: Type of account (e.g., SAVINGS, CHECKING)
+          example: SAVINGS
+        clientId:
+          type: string
+          description: Identifier of the account owner client
+          example: "client123"
+
+    AccountsResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique account ID
+          example: "507f1f77bcf86cd799439011"
+        accountNumber:
+          type: string
+          description: Unique account number
+          example: "1234567890"
+        balance:
+          type: number
+          format: double
+          description: Current balance
+          example: 1000.50
+        accountType:
+          type: string
+          description: Type of the account
+          example: SAVINGS
+        clientId:
+          type: string
+          description: Client ID owning the account
+          example: "client123"
+
+    TransactionRequest:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: number
+          format: double
+          description: Amount to deposit or withdraw
+          example: 150.0
