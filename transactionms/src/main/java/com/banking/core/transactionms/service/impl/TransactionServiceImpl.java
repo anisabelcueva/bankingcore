@@ -1,5 +1,6 @@
 package com.banking.core.transactionms.service.impl;
 
+import com.banking.core.transactionms.mapper.MapperResponse;
 import com.banking.core.transactionms.model.Transaction;
 import com.banking.core.transactionms.model.TransactionType;
 import com.banking.core.transactionms.model.dto.TransactionRequest;
@@ -9,9 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import com.banking.core.transactionms.dto.TransactionDto;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +23,9 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
 
     @Override
-    public Mono<Void> saveTransaction(TransactionRequest transactionRequest, TransactionType transactionType) {
+    public Mono<TransactionDto> saveTransaction(TransactionRequest transactionRequest,
+                                                TransactionType transactionType) {
+
         String dateAndTime = getDateAndTimeFormatted();
 
         Transaction transaction =Transaction.builder()
@@ -31,12 +36,26 @@ public class TransactionServiceImpl implements TransactionService {
                 .accountNumberDestination(transactionRequest.getAccountNumberDestination())
                 .build();
 
-        return transactionRepository.save(transaction);
+        Mono<Transaction> transactionSaved = this.transactionRepository.save(transaction);
+
+        TransactionDto transactDto = MapperResponse.buildDtoResponse(Objects.requireNonNull(transactionSaved.block()));
+
+        return Mono.just(transactDto);
     }
 
     @Override
-    public Flux<Transaction> getAllTransaction() {
-        return transactionRepository.findAll();
+    public Flux<TransactionDto> getAllTransaction() {
+        Flux<Transaction> transactions = transactionRepository.findAll();
+
+        return transactions.map(demo ->
+            TransactionDto.builder()
+                    .accountNumberOrigin(demo.getAccountNumberOrigin())
+                    .accountNumberDestination(demo.getAccountNumberDestination())
+                    .amount(demo.getAmount())
+                    .date(demo.getDate())
+                    .transactionType(demo.getTransactionType())
+                    .build()
+        );
     }
 
     private String getDateAndTimeFormatted() {

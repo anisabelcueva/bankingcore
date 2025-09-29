@@ -1,5 +1,6 @@
 package com.banking.core.transactionms.controller;
 
+import com.banking.core.transactionms.dto.TransactionDto;
 import com.banking.core.transactionms.model.Transaction;
 import com.banking.core.transactionms.model.TransactionType;
 import com.banking.core.transactionms.model.dto.TransactionRequest;
@@ -26,24 +27,24 @@ public class TransactionController {
 
     @PostMapping("/deposit")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Void> deposit(@Valid @RequestBody TransactionRequest transactionRequest) {
+    public Mono<TransactionDto> deposit(@Valid @RequestBody TransactionRequest transactionRequest) {
         return transactionService.saveTransaction(transactionRequest, TransactionType.DEPOSIT);
     }
 
     @PostMapping("/withdrawal")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Void> withdrawal(@Valid @RequestBody TransactionRequest transactionRequest) {
+    public Mono<TransactionDto> withdrawal(@Valid @RequestBody TransactionRequest transactionRequest) {
         return transactionService.saveTransaction(transactionRequest, TransactionType.WITHDRAWAL);
     }
 
     @PostMapping("/transfer")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<Void> transfer(@Valid @RequestBody TransactionRequest transactionRequest) {
+    public Mono<TransactionDto> transfer(@Valid @RequestBody TransactionRequest transactionRequest) {
         return transactionService.saveTransaction(transactionRequest, TransactionType.TRANSFER);
     }
 
     @GetMapping("/history")
-    public Flux<Transaction> getAllTransactions() {
+    public Flux<TransactionDto> getAllTransactions() {
         return transactionService.getAllTransaction();
     }
 
