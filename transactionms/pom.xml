@@ -138,6 +138,11 @@
                 </executions>
                 <!-- Umbrales de Cobertura -->
                 <configuration>
+                    <excludes>
+                        <exclude>com/banking/core/transactionms/model/*</exclude>
+                        <exclude>com/banking/core/transactionms/model/dto/*</exclude>
+                        <exclude>com/banking/core/transactionms/TransactionmsApplication.class</exclude>
+                    </excludes>
                     <rules>
                         <rule>
                             <element>BUNDLE</element>

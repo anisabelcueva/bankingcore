@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import com.banking.core.transactionms.dto.TransactionDto;
+import com.banking.core.transactionms.model.dto.TransactionResponse;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,8 +23,8 @@ public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
 
     @Override
-    public Mono<TransactionDto> saveTransaction(TransactionRequest transactionRequest,
-                                                TransactionType transactionType) {
+    public Mono<TransactionResponse> saveTransaction(TransactionRequest transactionRequest,
+                                                     TransactionType transactionType) {
 
         String dateAndTime = getDateAndTimeFormatted();
 
@@ -38,17 +38,17 @@ public class TransactionServiceImpl implements TransactionService {
 
         Mono<Transaction> transactionSaved = this.transactionRepository.save(transaction);
 
-        TransactionDto transactDto = MapperResponse.buildDtoResponse(Objects.requireNonNull(transactionSaved.block()));
+        TransactionResponse transactDto = MapperResponse.buildDtoResponse(Objects.requireNonNull(transactionSaved.block()));
 
         return Mono.just(transactDto);
     }
 
     @Override
-    public Flux<TransactionDto> getAllTransaction() {
+    public Flux<TransactionResponse> getAllTransaction() {
         Flux<Transaction> transactions = transactionRepository.findAll();
 
         return transactions.map(demo ->
-            TransactionDto.builder()
+            TransactionResponse.builder()
                     .accountNumberOrigin(demo.getAccountNumberOrigin())
                     .accountNumberDestination(demo.getAccountNumberDestination())
                     .amount(demo.getAmount())

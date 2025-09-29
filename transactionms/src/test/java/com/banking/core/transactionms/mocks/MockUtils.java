@@ -1,6 +1,6 @@
 package com.banking.core.transactionms.mocks;
 
-import com.banking.core.transactionms.dto.TransactionDto;
+import com.banking.core.transactionms.model.dto.TransactionResponse;
 import com.banking.core.transactionms.model.Transaction;
 import com.banking.core.transactionms.model.TransactionType;
 import com.banking.core.transactionms.model.dto.TransactionRequest;
@@ -54,10 +54,30 @@ public class MockUtils {
     }
 
 
-    public static TransactionDto getTransactionDto() {
-        return TransactionDto.builder()
+    public static TransactionResponse getTransactionDtoDeposit() {
+        return TransactionResponse.builder()
                 .date("2025-09-28 13:17:45")
                 .transactionType(TransactionType.DEPOSIT)
+                .accountNumberDestination(MockUtils.generateAccountNumber())
+                .accountNumberOrigin(MockUtils.generateAccountNumber())
+                .amount(250)
+                .build();
+    }
+
+    public static TransactionResponse getTransactionDtoWithdrawal() {
+        return TransactionResponse.builder()
+                .date("2025-09-28 13:17:45")
+                .transactionType(TransactionType.WITHDRAWAL)
+                .accountNumberDestination(MockUtils.generateAccountNumber())
+                .accountNumberOrigin(MockUtils.generateAccountNumber())
+                .amount(250)
+                .build();
+    }
+
+    public static TransactionResponse getTransactionDtoTransfer() {
+        return TransactionResponse.builder()
+                .date("2025-09-28 13:17:45")
+                .transactionType(TransactionType.TRANSFER)
                 .accountNumberDestination(MockUtils.generateAccountNumber())
                 .accountNumberOrigin(MockUtils.generateAccountNumber())
                 .amount(250)
@@ -68,7 +88,7 @@ public class MockUtils {
         return TransactionRequest.builder()
                 .accountNumberOrigin("")
                 .accountNumberDestination("")
-                .amount(870)
+                .amount(900)
                 .build();
     }
 
