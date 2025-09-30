@@ -1,131 +1,89 @@
 package com.banking.core.customerms.service.impl;
 
-import com.banking.core.customerms.dto.CustomerDto;
 import com.banking.core.customerms.entity.Customer;
+import com.banking.core.customerms.model.CustomerRequest;
+import com.banking.core.customerms.model.CustomerResponse;
 import com.banking.core.customerms.repository.CustomerRepository;
 import com.banking.core.customerms.service.CustomerService;
-import com.banking.core.customerms.web.mapper.CustomerResponseMapper;
-import com.banking.core.customerms.web.model.CustomerRequest;
-import com.banking.core.customerms.web.model.CustomerResponse;
-import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.lang.module.FindException;
-import java.util.List;
-import java.util.Optional;
-import java.util.regex.Pattern;
 
 @Service
-@Log4j2
 public class CustomerServiceImpl implements CustomerService {
 
-    private CustomerRepository customerRepository;
+    @Autowired
+    private CustomerRepository repository;
 
-    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
-
-    public CustomerServiceImpl(CustomerRepository customerRepository) {
-        this.customerRepository = customerRepository;
+    @Override
+    public Flux<CustomerResponse> getAllCustomers() {
+        return repository.findAll()
+                .switchIfEmpty(Mono.error(new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "No customers found")))
+                .map(this::mapToResponse)
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex));
     }
 
     @Override
-    public CustomerResponse getCustomer(long customerId) {
-        Optional<Customer> customer = customerRepository.findById(customerId);
-        if (customer.isPresent()) {
-            return CustomerResponseMapper.buildCustomerResponse(customer.get());
-        }
-        return null;
+    public Mono<CustomerResponse> getCustomerById(Long id) {
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found!")))
+                .map(this::mapToResponse)
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex));
     }
 
     @Override
-    public List<CustomerResponse> getListCustomers() {
-        return CustomerResponseMapper.buildListCustomerResponse(customerRepository.findAll());
+    public Mono<String> createCustomer(CustomerRequest request) {
+        Customer customer = mapToEntity(request);
+        return repository.save(customer)
+                .map(c -> "Customer created successfully!")
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex));
     }
 
     @Override
-    public CustomerResponse saveCustomer(CustomerRequest customerRequest) {
-
-        dataEntryValidations(customerRequest);
-
-        Customer customer = customerRepository.save(Customer.builder()
-                .firstSecondName(customerRequest.getFirstSecondName())
-                .lastName(customerRequest.getLastName())
-                .dni(customerRequest.getDni())
-                .email(customerRequest.getEmail())
-                .build());
-
-        return CustomerResponseMapper.buildCustomerResponse(customer);
+    public Mono<String> updateCustomer(Long id, CustomerRequest request) {
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "Customer not found with id: " + id)))
+                .flatMap(existing -> {
+                    existing.setLastName(request.getLastName());
+                    existing.setFirstName(request.getFirstName());
+                    existing.setDni(request.getDni());
+                    existing.setEmail(request.getEmail());
+                    return repository.save(existing);
+                })
+                .map(c -> "Customer updated successfully!")
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex));
     }
 
     @Override
-    public CustomerResponse updateCustomer(CustomerRequest customerRequest, long customerId) {
-        dataEntryValidations(customerRequest);
-
-        Optional<Customer> customerToFind = customerRepository.findById(customerId);
-
-        if (customerToFind.isPresent()) {
-            Customer customerToUpdate = customerToFind.get();
-            customerToUpdate.setFirstSecondName(customerRequest.getFirstSecondName());
-            customerToUpdate.setLastName(customerRequest.getLastName());
-            customerToUpdate.setEmail(customerRequest.getEmail());
-            customerToUpdate.setDni(customerRequest.getDni());
-
-            return CustomerResponseMapper.buildCustomerResponse(customerRepository.save(customerToUpdate));
-        } else {
-            return null;
-        }
+    public Mono<Void> deleteCustomer(Long id) {
+        return repository.findById(id)
+                .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")))
+                .flatMap(repository::delete)
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Unexpected error", ex));
     }
 
-    @Override
-    public CustomerResponse deleteCustomer(long customerId) {
-
-        Optional<Customer> customerToDelete = customerRepository.findById(customerId);
-
-        if (customerToDelete.isEmpty()) {
-            return null;
-        }
-
-        String names = customerToDelete.get().getFirstSecondName();
-        String lastname = customerToDelete.get().getLastName();
-        String dni = customerToDelete.get().getDni();
-
-        customerRepository.deleteById(customerId);
-
-        if (customerRepository.existsById(customerId)) {
-            return null;
-        }
-        return CustomerResponse.builder()
-                .firstSecondName(names)
-                .lastName(lastname)
-                .dni(dni)
-                .build();
+    // 🔹 Helpers: convert between Request/Entity/Response
+    private Customer mapToEntity(CustomerRequest request) {
+        Customer customer = new Customer();
+        customer.setFirstName(request.getFirstName());
+        customer.setLastName(request.getLastName());
+        customer.setDni(request.getDni());
+        customer.setEmail(request.getEmail());
+        return customer;
     }
 
-    @Override
-    public Optional<CustomerDto> findByDni(String dni) {
-        return customerRepository.findByDni(dni).map(customer ->
-                CustomerDto.builder()
-                        .customerId(customer.getCustomerId())
-                        .firstSecondName(customer.getFirstSecondName())
-                        .lastName(customer.getLastName())
-                        .dni(customer.getDni())
-                        .email(customer.getEmail())
-                        .build()
-        );
-    }
-
-    private void dataEntryValidations(CustomerRequest customerRequest) {
-        if (customerRequest.getFirstSecondName() == null || customerRequest.getLastName() == null ||
-                customerRequest.getDni() == null || customerRequest.getEmail() == null) {
-            throw new IllegalArgumentException("Todos los campos del cliente son obligatorios.");
-        }
-
-        if (customerRepository.findByDni(customerRequest.getDni()).isPresent()) {
-            throw new IllegalArgumentException("El DNI ya está registrado.");
-        }
-
-        if (!EMAIL_PATTERN.matcher(customerRequest.getEmail()).matches()) {
-            throw new IllegalArgumentException("El formato del email no es válido.");
-        }
+    private CustomerResponse mapToResponse(Customer customer) {
+        CustomerResponse response = new CustomerResponse();
+        response.setId(customer.getId());
+        response.setDni(customer.getDni());
+        response.setEmail(customer.getEmail());
+        return response;
     }
 
 }

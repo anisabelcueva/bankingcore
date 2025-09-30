@@ -1,158 +1,121 @@
 package com.banking.core.customerms.service.impl;
 
-import com.banking.core.customerms.dto.CustomerDto;
-import com.banking.core.customerms.entity.Customer;
-import com.banking.core.customerms.mocks.MockUtils;
-import com.banking.core.customerms.repository.CustomerRepository;
-import com.banking.core.customerms.web.model.CustomerRequest;
-import com.banking.core.customerms.web.model.CustomerResponse;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import com.banking.core.customerms.entity.Customer;
+import com.banking.core.customerms.model.CustomerRequest;
+import com.banking.core.customerms.model.CustomerResponse;
+import com.banking.core.customerms.repository.CustomerRepository;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.mockito.junit.jupiter.MockitoSettings;
-import org.mockito.quality.Strictness;
+import org.mockito.MockitoAnnotations;
+import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
-import java.util.Optional;
-
-@MockitoSettings(strictness = Strictness.LENIENT)
-@ExtendWith(MockitoExtension.class)
 class CustomerServiceImplTest {
 
-    @InjectMocks
-    private CustomerServiceImpl customerServiceImpl;
-
     @Mock
-    private CustomerRepository customerRepository;
+    private CustomerRepository repository;
 
-    @Test
-    void getCustomer() {
-        Customer customer = Customer.builder()
-                .customerId(111)
-                .firstSecondName("Ana Isabel")
-                .lastName("Cueva")
-                .dni("18422233")
-                .email("anisabel@gmail.com")
-                .build();
+    @InjectMocks
+    private CustomerServiceImpl service;
 
-        Optional<Customer> optionalCustomer = Optional.of(customer);
+    private Customer customer;
+    private CustomerRequest request;
 
-        when(this.customerRepository.findById(any(Long.class))).thenReturn(optionalCustomer);
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
 
-        CustomerResponse customerResponse = this.customerServiceImpl.getCustomer(111);
+        // Objeto que conversa con la bd mongodb, este es un objeto que es homologo a una tabla de bd
+        customer = new Customer(); //entity
+        customer.setId(1L);
+        customer.setFirstName("John");
+        customer.setLastName("Doe");
+        customer.setDni("12345678");
+        customer.setEmail("jhon@example.com");
 
-        assertThat(customerResponse).isNotNull();
-        assertThat(customerResponse.getDni()).isEqualTo(customer.getDni());
+        // Objecto del controller para mostrar datos al cliente(postman, angularm reactm ect..)
+        request = new CustomerRequest();
+        request.setFirstName("Jane");
+        request.setLastName("Smith");
+        request.setDni("87654321");
+        request.setEmail("jane@example.com");
     }
 
     @Test
-    void getListCustomers() {
-        when(this.customerRepository.findAll()).thenReturn(MockUtils.buildListCustomer());
+    void getAllCustomers_success() {
+        when(repository.findAll()).thenReturn(Flux.just(customer));
 
-        List<CustomerResponse> response =  this.customerServiceImpl.getListCustomers();
-
-        assertThat(response).isNotNull();
-        assertThat(response.size()).isEqualTo(2);
-        assertThat(response.get(0).getFirstSecondName()).isEqualTo("Ana");
+        StepVerifier.create(service.getAllCustomers())
+                .expectNextMatches(resp -> resp.getId().equals(1L) &&
+                        resp.getEmail().equals("jhon@example.com"))
+                .verifyComplete();
     }
 
     @Test
-    void saveCustomer() {
-        Customer customer = Customer.builder()
-                .customerId(111)
-                .firstSecondName("Ana Isabel")
-                .lastName("Cueva")
-                .dni("18422233")
-                .email("anisabel@gmail.com")
-                .build();
+    void getAllCustomers_notFound() {
+        when(repository.findAll()).thenReturn(Flux.empty());
 
-        when(this.customerRepository.save(any(Customer.class))).thenReturn(customer);
-
-        CustomerRequest customerRequest = CustomerRequest.builder()
-                .firstSecondName(customer.getFirstSecondName())
-                .lastName(customer.getLastName())
-                .dni(customer.getDni())
-                .email(customer.getEmail())
-                .build();
-
-        CustomerResponse customerResponse = this.customerServiceImpl.saveCustomer(customerRequest);
-
-        assertThat(customerResponse).isNotNull();
-        assertThat(customerResponse.getFirstSecondName()).isEqualTo(customerRequest.getFirstSecondName());
-        assertThat(customerResponse.getLastName()).isEqualTo(customerRequest.getLastName());
-        assertThat(customerResponse.getDni()).isEqualTo(customerRequest.getDni());
-        assertThat(customerResponse.getEmail()).isEqualTo(customerRequest.getEmail());
+        StepVerifier.create(service.getAllCustomers())
+                .expectErrorMatches(throwable ->
+                        throwable instanceof ResponseStatusException &&
+                                ((ResponseStatusException) throwable).getStatus().value() == 500)
+                .verify();
     }
 
     @Test
-    void updateCustomer() {
-        Customer customer = Customer.builder()
-                .customerId(111)
-                .firstSecondName("Ana Isabel")
-                .lastName("Cueva")
-                .dni("18422233")
-                .email("anisabel@gmail.com")
-                .build();
+    void getCustomerById_success() {
+        when(repository.findById(1L)).thenReturn(Mono.just(customer));
 
-        Optional<Customer> optionalCustomer = Optional.of(customer);
-
-        when(this.customerRepository.findById(any(Long.class))).thenReturn(optionalCustomer);
-        when(this.customerRepository.save(any(Customer.class))).thenReturn(customer);
-
-        CustomerRequest customerRequest = CustomerRequest.builder()
-                .firstSecondName(customer.getFirstSecondName())
-                .lastName(customer.getLastName())
-                .dni(customer.getDni())
-                .email(customer.getEmail())
-                .build();
-
-        CustomerResponse customerResponse = this.customerServiceImpl.updateCustomer(customerRequest, 111);
-
-        assertThat(customerResponse).isNotNull();
+        StepVerifier.create(service.getCustomerById(1L))
+                .expectNextMatches(resp -> resp.getDni().equals("12345678"))
+                .verifyComplete();
     }
 
     @Test
-    void deleteCustomer() {
-        Customer customer = Customer.builder()
-                .customerId(111)
-                .firstSecondName("Ana Isabel")
-                .lastName("Cueva")
-                .dni("18422233")
-                .email("anisabel@gmail.com")
-                .build();
+    void getCustomerById_notFound() {
+        when(repository.findById(99L)).thenReturn(Mono.empty());
 
-        Optional<Customer> optionalCustomer = Optional.of(customer);
-
-        when(this.customerRepository.findById(any(Long.class))).thenReturn(optionalCustomer);
-        when(this.customerRepository.save(any(Customer.class))).thenReturn(customer);
-
-        CustomerResponse customerResponse = this.customerServiceImpl.deleteCustomer(customer.getCustomerId());
-
-        assertThat(customerResponse).isNotNull();
+        StepVerifier.create(service.getCustomerById(99L))
+                .expectError(ResponseStatusException.class)
+                .verify();
     }
 
     @Test
-    void findByDni() {
-        Customer customer = Customer.builder()
-                .customerId(111)
-                .firstSecondName("Ana Isabel")
-                .lastName("Cueva")
-                .dni("18422233")
-                .email("anisabel@gmail.com")
-                .build();
+    void createCustomer_success() {
+        when(repository.save(any(Customer.class))).thenReturn(Mono.just(customer));
 
-        Optional<Customer> optionalCustomer = Optional.of(customer);
+        StepVerifier.create(service.createCustomer(request))
+                .expectNext("Customer created successfully!")
+                .verifyComplete();
+    }
 
-        when(this.customerRepository.findByDni(any(String.class))).thenReturn(optionalCustomer);
+    @Test
+    void updateCustomer_success() {
+        when(repository.findById(1L)).thenReturn(Mono.just(customer));
+        when(repository.save(any(Customer.class))).thenReturn(Mono.just(customer));
 
-        Optional<CustomerDto> customerDto = this.customerServiceImpl.findByDni(customer.getDni());
+        StepVerifier.create(service.updateCustomer(1L, request))
+                .expectNext("Customer updated successfully!")
+                .verifyComplete();
+    }
 
-        assertThat(customerDto).isNotNull();
+    @Test
+    void deleteCustomer_notFound() {
+        when(repository.findById(99L)).thenReturn(Mono.empty());
+
+        StepVerifier.create(service.deleteCustomer(99L))
+                .expectError(ResponseStatusException.class)
+                .verify();
     }
 }

@@ -1,14 +1,12 @@
 package com.banking.core.customerms.repository;
-
 import com.banking.core.customerms.entity.Customer;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
+import reactor.core.publisher.Mono;
 
 @Repository
-public interface CustomerRepository extends JpaRepository<Customer, Long> {
+public interface CustomerRepository extends ReactiveMongoRepository<Customer, Long> {
 
-    Optional<Customer> findByDni(String dni);
-
+    Mono<Customer> findByDni(String dni);
+    Mono<Customer> findByEmail(String email);
 }

@@ -1,23 +1,20 @@
 package com.banking.core.customerms.service;
 
-import com.banking.core.customerms.dto.CustomerDto;
-import com.banking.core.customerms.web.model.CustomerRequest;
-import com.banking.core.customerms.web.model.CustomerResponse;
 
-import java.util.List;
-import java.util.Optional;
+import com.banking.core.customerms.model.CustomerRequest;
+import com.banking.core.customerms.model.CustomerResponse;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface CustomerService {
 
-    CustomerResponse getCustomer(long customerId);
+    Flux<CustomerResponse> getAllCustomers();
 
-    List<CustomerResponse> getListCustomers();
+    Mono<CustomerResponse> getCustomerById(Long id);
 
-    CustomerResponse saveCustomer(CustomerRequest customerRequest);
+    Mono<String> createCustomer(CustomerRequest request);
 
-    CustomerResponse updateCustomer(CustomerRequest customerRequest, long customerId);
+    Mono<String> updateCustomer(Long id, CustomerRequest request);
 
-    CustomerResponse deleteCustomer(long customerId);
-
-    Optional<CustomerDto> findByDni(String dni);
+    Mono<Void> deleteCustomer(Long id);
 }
