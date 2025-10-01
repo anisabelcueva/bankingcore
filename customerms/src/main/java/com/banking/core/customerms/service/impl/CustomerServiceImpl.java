@@ -5,19 +5,21 @@ import com.banking.core.customerms.model.CustomerRequest;
 import com.banking.core.customerms.model.CustomerResponse;
 import com.banking.core.customerms.repository.CustomerRepository;
 import com.banking.core.customerms.service.CustomerService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.math.BigInteger;
+
 
 @Service
+@RequiredArgsConstructor
 public class CustomerServiceImpl implements CustomerService {
 
-    @Autowired
-    private CustomerRepository repository;
+    private final CustomerRepository repository;
 
     @Override
     public Flux<CustomerResponse> getAllCustomers() {
@@ -29,7 +31,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Mono<CustomerResponse> getCustomerById(Long id) {
+    public Mono<CustomerResponse> getCustomerById(BigInteger id) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found!")))
                 .map(this::mapToResponse)
@@ -39,13 +41,13 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Mono<String> createCustomer(CustomerRequest request) {
         Customer customer = mapToEntity(request);
-        return repository.save(customer)
-                .map(c -> "Customer created successfully!")
+        Mono<Customer> CustomerSaved = this.repository.save(customer);
+        return CustomerSaved.map(c -> "Customer created successfully!")
                 .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex));
     }
 
     @Override
-    public Mono<String> updateCustomer(Long id, CustomerRequest request) {
+    public Mono<String> updateCustomer(BigInteger id, CustomerRequest request) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "Customer not found with id: " + id)))
@@ -61,7 +63,7 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public Mono<Void> deleteCustomer(Long id) {
+    public Mono<Void> deleteCustomer(BigInteger id) {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")))
                 .flatMap(repository::delete)
@@ -70,20 +72,22 @@ public class CustomerServiceImpl implements CustomerService {
 
     // 🔹 Helpers: convert between Request/Entity/Response
     private Customer mapToEntity(CustomerRequest request) {
-        Customer customer = new Customer();
-        customer.setFirstName(request.getFirstName());
-        customer.setLastName(request.getLastName());
-        customer.setDni(request.getDni());
-        customer.setEmail(request.getEmail());
-        return customer;
+        return Customer.builder()
+                .firstName(request.getFirstName())
+                .lastName(request.getLastName())
+                .dni(request.getDni())
+                .email(request.getEmail())
+                .build();
     }
 
     private CustomerResponse mapToResponse(Customer customer) {
-        CustomerResponse response = new CustomerResponse();
-        response.setId(customer.getId());
-        response.setDni(customer.getDni());
-        response.setEmail(customer.getEmail());
-        return response;
+        return CustomerResponse.builder()
+                .id(customer.getId())
+                .firstName(customer.getFirstName())
+                .lastName(customer.getLastName())
+                .dni(customer.getDni())
+                .email(customer.getEmail())
+                .build();
     }
 
 }

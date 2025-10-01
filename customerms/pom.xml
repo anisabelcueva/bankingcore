@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>2.7.18</version>
+		<version>3.2.3</version>
 		<relativePath/>
 	</parent>
 
@@ -18,80 +18,81 @@
 	<description>Bootcamp Core Banking - CustomerMs</description>
 
 	<properties>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
+        <jacoco.version>0.8.8</jacoco.version>
 	</properties>
 
 	<dependencies>
-		<!-- WebFlux -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-webflux</artifactId>
-		</dependency>
         <!-- para conectar de mongo en docker -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
-            <version>2.7.18</version>
+        </dependency>
+        <!-- Validation -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.mongodb</groupId>
-            <artifactId>mongodb-driver-reactivestreams</artifactId>
-            <version>4.4.1</version> <!-- Ejemplo: compatible con MongoDB 6.x - 8.x -->
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
-
-		<!-- R2DBC -->
+        <!-- WebFlux -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-r2dbc</artifactId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 
-		<dependency>
-			<groupId>io.github.resilience4j</groupId>
-			<artifactId>resilience4j-spring-boot2</artifactId>
-			<version>1.7.1</version>
-		</dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.mongodb</groupId>-->
+<!--            <artifactId>mongodb-driver-reactivestreams</artifactId>-->
+<!--            <version>4.4.1</version> &lt;!&ndash; Ejemplo: compatible con MongoDB 6.x - 8.x &ndash;&gt;-->
+<!--        </dependency>-->
 
-		<dependency>
-			<groupId>io.github.resilience4j</groupId>
-			<artifactId>resilience4j-reactor</artifactId>
-			<version>1.7.1</version>
-		</dependency>
+<!--		&lt;!&ndash; R2DBC &ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-data-r2dbc</artifactId>-->
+<!--		</dependency>-->
 
+<!--		<dependency>-->
+<!--			<groupId>io.github.resilience4j</groupId>-->
+<!--			<artifactId>resilience4j-spring-boot2</artifactId>-->
+<!--			<version>1.7.1</version>-->
+<!--		</dependency>-->
 
-
-		<!-- Validation -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-validation</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>io.github.resilience4j</groupId>-->
+<!--			<artifactId>resilience4j-reactor</artifactId>-->
+<!--			<version>1.7.1</version>-->
+<!--		</dependency>-->
 
 		<!-- Lombok -->
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
-			<version>1.18.38</version>
-			<scope>provided</scope>
+            <optional>true</optional>
 		</dependency>
 
 		<!-- Springdoc -->
-		<dependency>
-			<groupId>org.springdoc</groupId>
-			<artifactId>springdoc-openapi-webflux-ui</artifactId>
-			<version>1.6.15</version>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springdoc</groupId>-->
+<!--			<artifactId>springdoc-openapi-webflux-ui</artifactId>-->
+<!--			<version>1.6.15</version>-->
+<!--		</dependency>-->
 
 		<!-- Test (scope test) -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-test</artifactId>
-			<scope>test</scope>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-test</artifactId>-->
+<!--			<scope>test</scope>-->
+<!--		</dependency>-->
 
 		<!-- Reactive MongoDB -->
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
-		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>-->
+<!--		</dependency>-->
 
         <!-- Reactor Test: StepVerifier -->
         <dependency>
@@ -128,93 +129,86 @@
             <scope>test</scope>
         </dependency>
 
-		<!-- Si el generator genera JsonNullable, añade esto (descomenta si lo necesitas) -->
-		<!--
         <dependency>
-          <groupId>org.openapitools</groupId>
-          <artifactId>jackson-databind-nullable</artifactId>
-          <version>0.2.7</version>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-        -->
 	</dependencies>
 
 	<build>
 		<plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
 			<!-- Spring Boot plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-
+            <!-- checkstyle -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <version>3.6.0</version>
+                <configuration>
+                    <configLocation>${project.basedir}/src/main/resources/checkstyle.xml</configLocation>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>3.9.1.2184</version>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>${jacoco.version}</version>
+                <executions>
+                    <!-- Para ejecutar JaCoCo después de las pruebas -->
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <!-- Para generar el reporte de cobertura después de las pruebas -->
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <!-- Umbrales de Cobertura -->
+                <configuration>
+                    <excludes>
+                        <exclude>com/banking/core/customerms/model/*</exclude>
+                        <exclude>com/banking/core/customerms/CustomermsApplication.class</exclude>
+                    </excludes>
+                    <rules>
+                        <rule>
+                            <element>BUNDLE</element>
+                            <limits>
+                                <limit>
+                                    <counter>INSTRUCTION</counter>
+                                    <value>COVEREDRATIO</value>
+                                    <minimum>0.80</minimum><!-- Cobertura mínima del 80% -->
+                                </limit>
+                            </limits>
+                        </rule>
+                    </rules>
+                </configuration>
+            </plugin>
 			<!-- Compiler plugin (annotation processing + source/target) -->
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.11.0</version>
-				<configuration>
-					<source>${java.version}</source>
-					<target>${java.version}</target>
-					<annotationProcessorPaths>
-						<path>
-							<groupId>org.projectlombok</groupId>
-							<artifactId>lombok</artifactId>
-							<version>1.18.38</version>
-						</path>
-					</annotationProcessorPaths>
-				</configuration>
-			</plugin>
-
 			<!-- OpenAPI Generator -->
-			<plugin>
-				<groupId>org.openapitools</groupId>
-				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>7.7.0</version>
-				<executions>
-					<execution>
-						<id>generate-sources</id>
-						<goals><goal>generate</goal></goals>
-						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/openapi.yaml</inputSpec>
-							<generatorName>spring</generatorName>
-							<library>spring-boot</library>
-							<output>${project.build.directory}/generated-sources/openapi</output>
-							<apiPackage>com.banking.core.customerms.api</apiPackage>
-							<modelPackage>com.banking.core.customerms.model</modelPackage>
-
-							<configOptions>
-								<reactive>true</reactive>
-								<openApiNullable>false</openApiNullable>
-								<useLombok>true</useLombok>
-								<interfaceOnly>true</interfaceOnly>
-								<lombokConstructorAnnotations>AllArgsConstructor,NoArgsConstructor</lombokConstructorAnnotations>
-								<lombokData>true</lombokData>
-								<lombokBuilder>true</lombokBuilder>
-								<useBeanValidation>true</useBeanValidation>
-							</configOptions>
-
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- build-helper: incluye la carpeta generada como source -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>3.3.0</version>
-				<executions>
-					<execution>
-						<id>add-source</id>
-						<phase>generate-sources</phase>
-						<goals><goal>add-source</goal></goals>
-						<configuration>
-							<sources>
-								<source>${project.build.directory}/generated-sources/openapi/src/main/java</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 		</plugins>
 	</build>
 </project>

@@ -1,11 +1,15 @@
 package com.banking.core.customerms.entity;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Getter
-@Setter
+import java.math.BigInteger;
+
+@Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,7 +17,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class Customer {
 
     @Id
-    private Long id;
+    private BigInteger id;
 
     private String firstName;
 

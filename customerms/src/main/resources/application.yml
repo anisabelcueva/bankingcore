@@ -6,22 +6,12 @@ server:
 spring:
   application:
     name: customerms
-
   data:
     mongodb:
-      uri: mongodb://root:1234@cus_ms:27017/customerms?authSource=admin
-      database: BANKINGCOREDB
+      uri: mongodb://localhost:27017/
+      database: bankingcoredb
+      auto-index-creation: true
 
 logging:
   level:
     root: INFO
-    org.springframework.data.mongodb.core.ReactiveMongoTemplate: DEBUG
-
-  resilience4j.circuitbreaker:
-    instances:
-      customerServiceCircuitBreaker:
-        registerHealthIndicator: true
-        slidingWindowSize: 5        # Número de llamadas a monitorear
-        minimumNumberOfCalls: 3     # Número mínimo de llamadas antes de abrir
-        failureRateThreshold: 50    # % de errores para abrir
-        waitDurationInOpenState: 10s # Tiempo para probar de nuevo (Half-Open
