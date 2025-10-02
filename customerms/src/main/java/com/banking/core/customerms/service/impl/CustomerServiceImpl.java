@@ -13,7 +13,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigInteger;
-
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -21,13 +21,17 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository repository;
 
+    private static final Pattern VALID_EMAIL_ADDRESS_REGEX = Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
+
+    private static final String ERROR_MESSAGE = "Unexpected error";
+
     @Override
     public Flux<CustomerResponse> getAllCustomers() {
         return repository.findAll()
                 .switchIfEmpty(Mono.error(new ResponseStatusException(
                         HttpStatus.NOT_FOUND, "No customers found")))
                 .map(this::mapToResponse)
-                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex));
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_MESSAGE, ex));
     }
 
     @Override
@@ -35,15 +39,34 @@ public class CustomerServiceImpl implements CustomerService {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found!")))
                 .map(this::mapToResponse)
-                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex));
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_MESSAGE, ex));
     }
 
     @Override
-    public Mono<String> createCustomer(CustomerRequest request) {
-        Customer customer = mapToEntity(request);
+    public Mono<String> createCustomer(CustomerRequest customerRequest) {
+
+        Mono<Customer> customerReturned = this.repository.findByDni(customerRequest.getDni());
+        boolean existCustomer = false;
+
+        customerReturned.hasElement().map(demo -> existCustomer);
+
+        if (customerRequest.getFirstName() == null || customerRequest.getLastName() == null ||
+                customerRequest.getDni() == null || customerRequest.getEmail() == null) {
+            throw new IllegalArgumentException("Todos los campos del cliente son obligatorios.");
+        }
+
+        if (existCustomer) {
+            throw new IllegalArgumentException("DNI has been register previously");
+        }
+
+        if (!VALID_EMAIL_ADDRESS_REGEX.matcher(customerRequest.getEmail()).matches()) {
+            throw new IllegalArgumentException("Invalid Email Format.");
+        }
+
+        Customer customer = mapToEntity(customerRequest);
         Mono<Customer> CustomerSaved = this.repository.save(customer);
         return CustomerSaved.map(c -> "Customer created successfully!")
-                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex));
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_MESSAGE, ex));
     }
 
     @Override
@@ -59,7 +82,7 @@ public class CustomerServiceImpl implements CustomerService {
                     return repository.save(existing);
                 })
                 .map(c -> "Customer updated successfully!")
-                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error", ex));
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, ERROR_MESSAGE, ex));
     }
 
     @Override
@@ -67,7 +90,7 @@ public class CustomerServiceImpl implements CustomerService {
         return repository.findById(id)
                 .switchIfEmpty(Mono.error(new ResponseStatusException(HttpStatus.NOT_FOUND, "Customer not found")))
                 .flatMap(repository::delete)
-                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Unexpected error", ex));
+                .onErrorMap(ex -> new ResponseStatusException(HttpStatus.NOT_FOUND, ERROR_MESSAGE, ex));
     }
 
     // 🔹 Helpers: convert between Request/Entity/Response

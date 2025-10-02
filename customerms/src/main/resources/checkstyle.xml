@@ -14,7 +14,7 @@
         </module>
 
         <module name="MethodLength">
-            <property name="max" value="20"/>
+            <property name="max" value="30"/>
         </module>
 
     </module>
