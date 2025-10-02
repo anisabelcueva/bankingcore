@@ -191,6 +191,7 @@
                 <configuration>
                     <excludes>
                         <exclude>com/banking/core/customerms/model/*</exclude>
+                        <exclude>com/banking/core/customerms/entity/*</exclude>
                         <exclude>com/banking/core/customerms/CustomermsApplication.class</exclude>
                     </excludes>
                     <rules>

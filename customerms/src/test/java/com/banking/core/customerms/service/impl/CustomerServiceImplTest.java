@@ -1,18 +1,14 @@
 package com.banking.core.customerms.service.impl;
 
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.banking.core.customerms.entity.Customer;
 import com.banking.core.customerms.model.CustomerRequest;
-import com.banking.core.customerms.model.CustomerResponse;
 import com.banking.core.customerms.repository.CustomerRepository;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -64,16 +60,16 @@ class CustomerServiceImplTest {
                 .verifyComplete();
     }
 
-//    @Test
-//    void getAllCustomers_notFound() {
-//        when(repository.findAll()).thenReturn(Flux.empty());
-//
-//        StepVerifier.create(service.getAllCustomers())
-//                .expectErrorMatches(throwable ->
-//                        throwable instanceof ResponseStatusException &&
-//                                ((ResponseStatusException) throwable).getStatus().value() == 500)
-//                .verify();
-//    }
+    @Test
+    void getAllCustomers_notFound() {
+        when(repository.findAll()).thenReturn(Flux.empty());
+
+        StepVerifier.create(service.getAllCustomers())
+                .expectErrorMatches(throwable ->
+                        throwable instanceof ResponseStatusException &&
+                                ((ResponseStatusException) throwable).getBody().getStatus() == HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .verify();
+    }
 
     @Test
     void getCustomerById_success() {

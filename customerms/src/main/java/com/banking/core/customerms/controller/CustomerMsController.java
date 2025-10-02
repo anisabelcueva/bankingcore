@@ -54,9 +54,9 @@ public class CustomerMsController {
 
     @GetMapping("/")
     @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseEntity<Flux<CustomerResponse>>> getCustomers() {
-        Flux<CustomerResponse> customers = customerService.getAllCustomers();
-        return Mono.just(ResponseEntity.ok(customers));
+    public Flux<ResponseEntity<CustomerResponse>> getCustomers() {
+        return customerService.getAllCustomers()
+                .map(response -> ResponseEntity.ok().body(response));
     }
 
     @PutMapping("/{id}")
